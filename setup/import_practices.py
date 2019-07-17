@@ -5,14 +5,14 @@ import time
 import datetime
 import configparser
 import helper
+from MySQLdb import escape_string
 
 
 config_file = 'config.ini'
 config = configparser.ConfigParser()
 config.read(config_file)
 
-rx_filename = 'data/practice_features.csv'
-rx_file = rx_filename.format(period)
+rx_file = 'data/practice_features.csv'
 
 rx_prescribed_sql = 'insert into practice (org_code, name, nat_group, hlhg, addr_1, addr_2, addr_3, addr_4, addr_5, post_code, open_date, close_date, status_code, prescribing_setting, num_practitioners) values '
 rx_values_sql = helper.make_values_sql(15)
@@ -31,6 +31,7 @@ with open(rx_file) as csvfile:
     f = csv.reader(csvfile, delimiter=',')
     start_time = time.time()
     counter = 0
+    e_row = {}
 
     for i, row in enumerate(f, start=1):
         if counter == 0:
@@ -39,7 +40,9 @@ with open(rx_file) as csvfile:
         if i != 1:
             if counter:
                 sql = sql + ', '
-            sql = sql + rx_values_sql.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11], row[12], row[13], row[14])
+            for j in range(len(row)):
+                e_row[j] = escape_string(row[j].strip()).decode("utf-8").replace("%", "%%")
+            sql = sql + rx_values_sql.format(e_row[0], e_row[1], e_row[2], e_row[3], e_row[4], e_row[5], e_row[6], e_row[7], e_row[8], e_row[9], e_row[10], e_row[11], e_row[12], e_row[13], e_row[14])
             counter += 1
 
         if counter == buffer_size:
