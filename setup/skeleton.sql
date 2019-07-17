@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `rx_prescribed` (
   `period` mediumint(9) unsigned DEFAULT NULL,
   `ignore_flag` tinyint(3) unsigned DEFAULT NULL,
   KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39125464 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- Data exporting was unselected.
 
