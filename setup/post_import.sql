@@ -1,3 +1,15 @@
+SET @a = 0;
+CREATE TABLE practice_setting AS
+SELECT @a := @a + 1 as id, a.name
+FROM (SELECT DISTINCT prescribing_setting AS name FROM practice ORDER BY prescribing_setting) a;
+
+ALTER TABLE practice
+    ADD COLUMN practice_setting_id TINYINT NULL DEFAULT NULL AFTER prescribing_setting;
+
+UPDATE practice p, practice_setting ps
+SET p.practice_setting_id=ps.id
+WHERE ps.name = p.prescribing_setting;
+
 ALTER TABLE `rx_prescribed`
     ADD INDEX `practice` (`practice`),
     ADD INDEX `bnf_code_full` (`bnf_code_full`),
@@ -10,13 +22,10 @@ UPDATE rx_prescribed
 SET ignore_flag=1
 WHERE bnf_code_4 >= 1800;
 
-UPDATE rx_prescribed
-SET ignore_flag=1
-WHERE bnf_code_4 in ('');
-
 SET @current_practice = '';
 SET @practice_rank = 0;
 
+DROP TABLE IF EXISTS top_10_by_practice;
 CREATE TABLE top_10_by_practice AS
 SELECT practice, bnf_code_9, total_items, practice_rank
 FROM (SELECT a.practice,
@@ -32,9 +41,10 @@ FROM (SELECT a.practice,
 WHERE practice_rank <= 10;
 
 ALTER TABLE `top_10_by_practice`
-	ADD INDEX `practice` (`practice`),
-	ADD INDEX `bnf_code_9` (`bnf_code_9`);
+    ADD INDEX `practice` (`practice`),
+    ADD INDEX `bnf_code_9` (`bnf_code_9`);
 
+DROP TABLE IF EXISTS total_rx_by_month;
 CREATE TABLE total_rx_by_month AS
 SELECT a.*, a.total_items / a.num_practice AS items_per_practice
 FROM (SELECT bnf_code_9, SUM(items) AS total_items, COUNT(bnf_code_9) AS num_practice, period
@@ -43,5 +53,35 @@ FROM (SELECT bnf_code_9, SUM(items) AS total_items, COUNT(bnf_code_9) AS num_pra
       GROUP BY bnf_code_9, period) a;
 
 ALTER TABLE `total_rx_by_month`
-	ADD INDEX `bnf_code_9` (`bnf_code_9`),
-	ADD INDEX `period` (`period`);
+    ADD INDEX `bnf_code_9` (`bnf_code_9`),
+    ADD INDEX `period` (`period`);
+
+DROP TABLE IF EXISTS rx_by_practice_2017;
+CREATE TABLE rx_by_practice_2017 AS
+SELECT practice, bnf_code_9, SUM(items) AS total_items
+FROM rx_prescribed
+WHERE (period >= 201701 AND period <= 201712)
+  and ignore_flag = '0'
+GROUP BY practice, bnf_code_9;
+
+DROP TABLE IF EXISTS rx_by_practice_2018;
+CREATE TABLE rx_by_practice_2018 AS
+SELECT practice, bnf_code_9, SUM(items) AS total_items
+FROM rx_prescribed
+WHERE (period >= 201801 AND period <= 201812)
+  and ignore_flag = '0'
+GROUP BY practice, bnf_code_9;
+
+DROP TABLE IF EXISTS rx_by_practice_combined;
+CREATE TABLE rx_by_practice_combined AS
+SELECT practice, bnf_code_9, SUM(items) AS total_items
+FROM rx_prescribed
+WHERE ignore_flag = '0'
+GROUP BY practice, bnf_code_9;
+
+CREATE TABLE rx_by_class_by_practice_2018 AS
+SELECT practice, bnf_code_4, SUM(items) AS total_items
+FROM rx_prescribed
+WHERE (period >= 201801 AND period <= 201812)
+  AND ignore_flag = 0
+GROUP BY practice, bnf_code_4;
