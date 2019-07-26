@@ -85,3 +85,16 @@ FROM rx_prescribed
 WHERE (period >= 201801 AND period <= 201812)
   AND ignore_flag = 0
 GROUP BY practice, bnf_code_4;
+
+CREATE TABLE rx_by_class_by_practice_2017 AS
+SELECT practice, bnf_code_4, SUM(items) AS total_items
+FROM rx_prescribed
+WHERE (period >= 201701 AND period <= 201712)
+  AND ignore_flag = 0
+GROUP BY practice, bnf_code_4;
+
+CREATE TABLE rx_by_class_by_practice_combined AS
+SELECT practice, bnf_code_4, SUM(items) AS total_items
+FROM rx_prescribed
+WHERE ignore_flag = 0
+GROUP BY practice, bnf_code_4;
