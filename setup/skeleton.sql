@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `practice` (
   `open_date` varchar(50) DEFAULT NULL,
   `close_date` varchar(50) DEFAULT NULL,
   `status_code` char(1) DEFAULT NULL,
-  `prescribing_setting` varchar(50) DEFAULT NULL,
+  `practice_setting_id` TINYINT(4) NULL DEFAULT NULL,
   `num_practitioners` tinyint(3) unsigned DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

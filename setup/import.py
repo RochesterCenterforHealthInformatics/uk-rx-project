@@ -19,7 +19,7 @@ rx_file = rx_filename.format(period)
 rx_prescribed_sql = 'insert into rx_prescribed (sha_at, pct_ccg, practice, bnf_code_full, bnf_code_9, bnf_code_4, items, nic, cost, quantity, period, ignore_flag) values '
 rx_values_sql = helper.make_values_sql(12)
 
-buffer_size = 5000
+buffer_size = 10000
 
 try:
     engine = sqlalchemy.create_engine(config['DEFAULT']['uri'], pool_recycle=3600)
